@@ -8,6 +8,9 @@ namespace MinimizeToNotifyIcon
         private const int NotifyIconShowTime = 300;
         private const string NotifyIconTitle = "Minimize to Notify Icon";
 
+        // Properties based override for hiding behavior
+        private readonly bool _canUiHide = Properties.Settings.Default.CanUIHide;
+
         // Used to control visibility other than the first startups
         private bool _hideForm = true;
 
@@ -26,34 +29,43 @@ namespace MinimizeToNotifyIcon
         {
             if (_hideOnStartup) { _hideOnStartup = false; } // Reverses the startup case
             _hideForm = false;
+            ShowInTaskbar = true;
             Show();
             WindowState = FormWindowState.Normal; // Guarentees the form does not just show to the taskbar, but has focus
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            notifyIcon1.Visible = true; // Needed to ensure after we hide the form (startup) that a notify Icon appears
-            notifyIcon1.ShowBalloonTip(NotifyIconShowTime, NotifyIconTitle, "Starting Minimized to Tray", ToolTipIcon.Info);
+            if (_canUiHide)
+            {
+                notifyIcon1.Visible = true; // Needed to ensure after we hide the form (startup) that a notify Icon appears
+                notifyIcon1.ShowBalloonTip(NotifyIconShowTime, NotifyIconTitle, "Starting Minimized to Tray", ToolTipIcon.Info);               
+            }
         }
 
         protected override void OnVisibleChanged(EventArgs e)
         {
-            if (_hideOnStartup) { Visible = false; } // Handle Startup
+            if (_canUiHide)
+            {
+                if (_hideOnStartup) { Visible = false; } // Handle Startup
 
-            if (!_hideForm) { Visible = true; } // Handle Visibilty beyond Startup
+                if (!_hideForm) { Visible = true; } // Handle Visibilty beyond Startup
+            }
             base.OnVisibleChanged(e);
         }
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            if (WindowState == FormWindowState.Minimized)
+            switch (WindowState)
             {
-                notifyIcon1.Visible = true;
-                notifyIcon1.ShowBalloonTip(NotifyIconShowTime, NotifyIconTitle, "I was minimized", ToolTipIcon.Info);
-            }
-            else if (WindowState == FormWindowState.Normal)
-            {
-                notifyIcon1.Visible = false;
+                case FormWindowState.Minimized:
+                    notifyIcon1.Visible = true;
+                    notifyIcon1.ShowBalloonTip(NotifyIconShowTime, NotifyIconTitle, "I was minimized", ToolTipIcon.Info);
+                    ShowInTaskbar = false;
+                    break;
+                case FormWindowState.Normal:
+                    notifyIcon1.Visible = false;
+                    break;
             }
         }
 
@@ -61,7 +73,7 @@ namespace MinimizeToNotifyIcon
         {
             if (!_reallyClose) // Really close if we push the Really close button
             {
-                _hideForm = true;  // Set so visibiity is hidden
+                _hideForm = true; // Set so visibiity is hidden
                 WindowState = FormWindowState.Minimized;
                 e.Cancel = true;
             }
