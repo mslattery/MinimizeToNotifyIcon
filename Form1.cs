@@ -15,7 +15,7 @@ namespace MinimizeToNotifyIcon
         private bool _hideForm = true;
 
         // Used to handle form startup
-        private bool _hideOnStartup = true;
+        private bool _hideFormOnStartup = true;
 
         // Used to allow for real form closing
         private bool _reallyClose;
@@ -27,11 +27,11 @@ namespace MinimizeToNotifyIcon
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (_hideOnStartup) { _hideOnStartup = false; } // Reverses the startup case
+            if (_hideFormOnStartup) { _hideFormOnStartup = false; } // Reverses the startup case
             _hideForm = false;
             ShowInTaskbar = true;
             Show();
-            WindowState = FormWindowState.Normal; // Guarentees the form does not just show to the taskbar, but has focus
+            WindowState = FormWindowState.Normal; // Guarantees the form does not just show to the task bar, but has focus
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -47,7 +47,7 @@ namespace MinimizeToNotifyIcon
         {
             if (_canUiHide)
             {
-                if (_hideOnStartup) { Visible = false; } // Handle Startup
+                if (_hideFormOnStartup) { Visible = false; } // Handle Startup
 
                 if (!_hideForm) { Visible = true; } // Handle Visibilty beyond Startup
             }
