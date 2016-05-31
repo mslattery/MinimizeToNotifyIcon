@@ -73,7 +73,7 @@ namespace MinimizeToNotifyIcon
         {
             if (!_reallyClose) // Really close if we push the Really close button
             {
-                _hideForm = true; // Set so visibiity is hidden
+                _hideForm = true; // Set so visibility is hidden
                 WindowState = FormWindowState.Minimized;
                 e.Cancel = true;
             }
